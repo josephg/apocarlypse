@@ -3,10 +3,20 @@
 const choo = require('choo')
 const html = require('choo/html')
 
-const myComponent = (state) => {
+const cardSelect = (state, emit) => {
   return html`<body>
-    <h1>hi!</h1>
+    <h1>Card select</h1>
+    <button onclick=${() => emit('race')}>Race</button>
+  </body>`}
+
+const race = (state) => {
+  return html`<body>
+    <h1>Racey race time</h1>
   </body>`
+}
+
+const root = (state, emit) => {
+  return state.screen === 'cardselect' ? cardSelect(state, emit) : race(state, emit)
 }
 
 ;(async () => {
@@ -18,6 +28,16 @@ const myComponent = (state) => {
   // window.store = store
 
   const app = choo()
-  app.route('/', myComponent)
+
+  app.use((state, emitter) => {
+    state.screen = 'cardselect'
+    
+    emitter.on('race', () => {
+      state.screen = 'race'
+      emitter.emit('render')
+    })
+  })
+
+  app.route('/', root)
   app.mount('body')
 })()
